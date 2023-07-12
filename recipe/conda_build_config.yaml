@@ -6,6 +6,7 @@ cuda_compiler_version:
   - "None"                   # [build_type == 'cpu']
   - "11.2"                   # [cudatoolkit == '11.2']
   - "11.8"                   # [cudatoolkit == '11.8']
+  - "12.2"                   # [cudatoolkit == '12.2']
 cuda_compiler:
   - nvcc
 cudnn:

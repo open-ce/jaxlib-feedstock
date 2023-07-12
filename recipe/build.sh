@@ -54,13 +54,15 @@ then
 
         export CONDA_BUILD_SYSROOT=""
     fi
+else
+	ln -s $AR $BUILD_PREFIX/bin/ar
 fi
 
 if [[ "${target_platform}" == osx-* ]]; then
   export LDFLAGS="${LDFLAGS} -lz -framework CoreFoundation -Xlinker -undefined -Xlinker dynamic_lookup"
 fi
 export CFLAGS="${CFLAGS} -DNDEBUG"
-
+export CXXFLAGS="${CXXFLAGS} -I${PREFIX}/include"
 source gen-bazel-toolchain
 
 cat >> .bazelrc <<EOF
@@ -108,7 +110,7 @@ if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
         export TF_CUDA_COMPUTE_CAPABILITIES=sm_35,sm_50,sm_60,sm_62,sm_70,sm_72,sm_75,sm_80,compute_80
     elif [[ ${cuda_compiler_version} == 11.1 ]]; then
         export TF_CUDA_COMPUTE_CAPABILITIES=sm_35,sm_50,sm_60,sm_62,sm_70,sm_72,sm_75,sm_80,sm_86,compute_86
-    elif [[ ${cuda_compiler_version} == 11.2 || ${cuda_compiler_version} == 11.8 ]]; then
+    elif [[ ${cuda_compiler_version} == 11.2 || ${cuda_compiler_version} == 11.8 || ${cuda_compiler_version} == 12.2 ]]; then
         export TF_CUDA_COMPUTE_CAPABILITIES="${cuda_levels_details}"
     else
         echo "unsupported cuda version."
@@ -116,7 +118,7 @@ if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
     fi
 
     export TF_CUDA_VERSION="${cuda_compiler_version}"
-    export TF_CUDNN_VERSION="8.8.1"
+    export TF_CUDNN_VERSION="8.9.2"
     export TF_CUDA_PATHS="${CUDA_HOME},${PREFIX},/usr/include"
     export TF_NEED_CUDA=1
     export TF_NCCL_VERSION=$(pkg-config nccl --modversion | grep -Po '\d+\.\d+')
@@ -136,7 +138,6 @@ fi
 #
 # Thus: don't add com_google_protobuf here.
 # FIXME: Current global abseil pin is too old for jaxlib, readd com_google_absl once we are on a newer version.
-export TF_SYSTEM_LIBS="boringssl,com_github_googlecloudplatform_google_cloud_cpp,com_github_grpc_grpc,flatbuffers,zlib"
 
 if [[ "${target_platform}" == "osx-arm64" ]]; then
   ${PYTHON} build/build.py --target_cpu_features default --enable_mkl_dnn --target_cpu ${TARGET_CPU}
