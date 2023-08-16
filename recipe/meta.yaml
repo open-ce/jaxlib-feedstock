@@ -19,6 +19,7 @@ source:
     - patches/0002-bazelrc-edit.diff  # [cudatoolkit == '11.8' or cudatoolkit == '11.2']
     - patches/0003-Patched-openxla-for-tf_runtime.patch     #[s390x]
     - patches/0004-Remove-bazel-shutdown-call-from-jax-code.patch      #[x86_64]
+    - patches/0005-Use-ppc64le-compatible-boringssl.patch            #[ppc64le]
 
 build:
   number: 4
