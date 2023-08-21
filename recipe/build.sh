@@ -55,7 +55,9 @@ then
         export CONDA_BUILD_SYSROOT=""
     fi
 else
-	ln -s $AR $BUILD_PREFIX/bin/ar
+    if [[ ! -f $BUILD_PREFIX/bin/ar ]]; then
+        ln -s $AR $BUILD_PREFIX/bin/ar
+    fi
 fi
 
 if [[ "${target_platform}" == osx-* ]]; then
