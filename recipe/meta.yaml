@@ -1,4 +1,4 @@
-{% set version = "0.4.7" %}
+{% set version = "0.4.23" %}
 {% set number = 0 %}
 
 {% if cuda_compiler_version != "None" %}
@@ -13,10 +13,10 @@ package:
 source:
   # only pull sources after upstream PyPI release...
   url: https://github.com/google/jax/archive/jaxlib-v{{ version }}.tar.gz
-  sha256: 0578d5dd5035b5225cadb6a62ca5f93dd76b70292268502fc01a0fd9ca7001d0
+  sha256: e4c06d62ba54becffd91abc862627b8b11b79c5a77366af8843b819665b6d568
   patches:
     - patches/0001-custom-build.diff
-    - patches/0002-bazelrc-edit.diff  # [cudatoolkit == '11.8' or cudatoolkit == '11.2']
+    - patches/0002-bazelrc-edit.diff  # [cudatoolkit == '11.8' or cudatoolkit == '12.2']
     - patches/0003-Patched-openxla-for-tf_runtime.patch     #[s390x]
     - patches/0004-Remove-bazel-shutdown-call-from-jax-code.patch      #[x86_64]
     - patches/0005-Use-ppc64le-compatible-boringssl.patch            #[ppc64le]
@@ -50,6 +50,7 @@ requirements:
     - flatbuffers {{ flatbuffers }}
     # list libabseil here to ensure pinning correctly
     - libabseil {{ abseil_cpp }}
+    - build
   host:
     - cudnn {{ cudnn }}      # [build_type == 'cuda']
     - nccl {{ nccl }}        # [build_type == 'cuda']
@@ -64,6 +65,7 @@ requirements:
     - grpc-cpp {{ grpc_cpp }}
     - openssl
     - zlib {{ zlib }}
+    - build
   run:
     - python
     - {{ pin_compatible('numpy') }}

@@ -1,6 +1,6 @@
-From 1b975a6de26a173c98d8a18d73ab5321658c240c Mon Sep 17 00:00:00 2001
-From: Nishidha Panpaliya <npanpa23@in.ibm.com>
-Date: Thu, 4 May 2023 06:24:50 -0400
+From e002ef547a04f29ac4a0c3a614695233964c9077 Mon Sep 17 00:00:00 2001
+From: Deepali Chourasia <deepch23@in.ibm.com>
+Date: Thu, 11 Jan 2024 11:01:53 +0000
 Subject: [PATCH] Remove bazel shutdown call from jax code
 
 ---
@@ -8,18 +8,18 @@ Subject: [PATCH] Remove bazel shutdown call from jax code
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/build/build.py b/build/build.py
-index 85e3c5e17..0fe54dddb 100755
+index 41994c4b4..a05d7d0cd 100755
 --- a/build/build.py
 +++ b/build/build.py
-@@ -557,7 +557,7 @@ def main():
-     command += ["--editable"]
-   print(" ".join(command))
-   shell(command)
+@@ -595,7 +595,7 @@ def main():
+     print(" ".join(build_pjrt_plugin_command))
+     shell(build_pjrt_plugin_command)
+ 
 -  shell([bazel_path] + args.bazel_startup_options + ["shutdown"])
-+  #shell([bazel_path] + args.bazel_startup_options + ["shutdown"])
++ #shell([bazel_path] + args.bazel_startup_options + ["shutdown"])
  
  
  if __name__ == "__main__":
 -- 
-2.31.1
+2.40.1
 
