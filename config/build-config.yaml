@@ -4,4 +4,3 @@ recipes:
 
 channels:
   - defaults
-  - conda-forge               #[ppc64le and cudatoolkit == '11.2']

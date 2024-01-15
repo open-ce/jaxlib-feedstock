@@ -1,25 +1,26 @@
-From 093c806ba0ffce66048be2f6c632ac715bd85146 Mon Sep 17 00:00:00 2001
-From: ngam <67342040+ngam@users.noreply.github.com>
-Date: Wed, 22 Jun 2022 20:42:50 +0000
-Subject: [PATCH 2/2] cuda
+From 10917e19f653fe0cd4ac92f3e018fc3b5c106329 Mon Sep 17 00:00:00 2001
+From: Deepali Chourasia <deepch23@in.ibm.com>
+Date: Mon, 15 Jan 2024 05:03:59 +0000
+Subject: [PATCH] cuda
 
 ---
  .bazelrc | 14 +++++++-------
  1 file changed, 7 insertions(+), 7 deletions(-)
 
 diff --git a/.bazelrc b/.bazelrc
---- .bazelrc
-+++ .bazelrc
-@@ -62,17 +62,17 @@
- build:native_arch_posix --host_copt=-march=native
+index deb4de0a9..7593df153 100644
+--- a/.bazelrc
++++ b/.bazelrc
+@@ -61,16 +61,16 @@ build:native_arch_posix --host_copt=-march=native
  
  build:mkl_open_source_only --define=tensorflow_mkldnn_contraction_kernel=1
  
 -build:cuda --repo_env TF_NEED_CUDA=1
 +build --repo_env TF_NEED_CUDA=1
+ build:cuda --repo_env TF_NCCL_USE_STUB=1
  # "sm" means we emit only cubin, which is forward compatible within a GPU generation.
  # "compute" means we emit both cubin and PTX, which is larger but also forward compatible to future GPU generations.
--build:cuda --action_env TF_CUDA_COMPUTE_CAPABILITIES="sm_52,sm_60,sm_70,compute_80"
+-build:cuda --action_env TF_CUDA_COMPUTE_CAPABILITIES="sm_50,sm_60,sm_70,sm_80,compute_90"
 -build:cuda --crosstool_top=@local_config_cuda//crosstool:toolchain
 -build:cuda --@local_config_cuda//:enable_cuda
 -build:cuda --@xla//xla/python:enable_gpu=true
@@ -32,9 +33,8 @@ diff --git a/.bazelrc b/.bazelrc
 +build --@xla//xla/python:jax_cuda_pip_rpaths=true
 +build --define=xla_python_enable_gpu=true
  
- build:rocm --crosstool_top=@local_config_rocm//crosstool:toolchain
- build:rocm --define=using_rocm=true --define=using_rocm_hipcc=true
- build:rocm --@xla//xla/python:enable_gpu=true
-
+ # Later Bazel flag values override earlier values.
+ # TODO(jieying): remove enable_gpu and xla_python_enable_gpu from build:cuda
 -- 
-2.36.1
+2.40.1
+

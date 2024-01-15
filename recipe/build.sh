@@ -120,7 +120,7 @@ if [[ "${cuda_compiler_version:-None}" != "None" ]]; then
     fi
 
     export TF_CUDA_VERSION="${cuda_compiler_version}"
-    export TF_CUDNN_VERSION="8.9.2"
+    export TF_CUDNN_VERSION="8.9.6"
     export TF_CUDA_PATHS="${CUDA_HOME},${PREFIX},/usr/include"
     export TF_NEED_CUDA=1
     export TF_NCCL_VERSION=$(pkg-config nccl --modversion | grep -Po '\d+\.\d+')
