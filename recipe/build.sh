@@ -21,32 +21,32 @@ source open-ce-common-utils.sh
 
 if [[ $ppc_arch == "p10" ]]
 then
-    if [[ -z "${GCC_11_HOME}" ]];
+    if [[ -z "${GCC_HOME}" ]];
     then
-        echo "Please set GCC_11_HOME to the install path of gcc-toolset-11"
+        echo "Please set GCC_HOME to the install path of gcc-toolset-12"
         exit 1
     else
-        export PATH=$GCC_11_HOME/bin:$PATH
-        export CC=$GCC_11_HOME/bin/gcc
-        export CXX=$GCC_11_HOME/bin/g++
+        export PATH=$GCC_HOME/bin:$PATH
+        export CC=$GCC_HOME/bin/gcc
+        export CXX=$GCC_HOME/bin/g++
         export GCC=$CC
         export GXX=$CXX
-        export AR=${GCC_11_HOME}/bin/ar
-        export LD=${GCC_11_HOME}/bin/ld
-        export NM=${GCC_11_HOME}/bin/nm
-        export OBJCOPY=${GCC_11_HOME}/bin/objcopy
-        export OBJDUMP=${GCC_11_HOME}/bin/objdump
-        export RANLIB=${GCC_11_HOME}/bin/ranlib
-        export STRIP=${GCC_11_HOME}/bin/strip
-        export READELF=${GCC_11_HOME}/bin/readelf
+        export AR=${GCC_HOME}/bin/ar
+        export LD=${GCC_HOME}/bin/ld
+        export NM=${GCC_HOME}/bin/nm
+        export OBJCOPY=${GCC_HOME}/bin/objcopy
+        export OBJDUMP=${GCC_HOME}/bin/objdump
+        export RANLIB=${GCC_HOME}/bin/ranlib
+        export STRIP=${GCC_HOME}/bin/strip
+        export READELF=${GCC_HOME}/bin/readelf
         export HOST=powerpc64le-conda_cos7-linux-gnu
         export BAZEL_LINKLIBS=-l%:libstdc++.a
 
         # Removing these libs so that jaxlib libraries link against libstdc++.so present on
-        # the system provided by gcc-toolset-11
+        # the system provided by gcc-toolset-12
         rm ${PREFIX}/lib/libstdc++.so*
         rm ${BUILD_PREFIX}/lib/libstdc++.so*
-        export LDFLAGS="-Wl,-O2 -Wl,-S -fuse-ld=gold -Wl,-no-as-needed -Wl,-z,now -B/opt/rh/gcc-toolset-11/root/usr/bin -lrt -L${GCC_11_HOME}/lib -L${PREFIX}/lib"
+        export LDFLAGS="-Wl,-O2 -Wl,-S -fuse-ld=gold -Wl,-no-as-needed -Wl,-z,now -B/opt/rh/gcc-toolset-12/root/usr/bin -lrt -L${GCC_HOME}/lib -L${PREFIX}/lib"
 
         export CXXFLAGS="${CXXFLAGS} -mcpu=power9 -mtune=power10 -U_FORTIFY_SOURCE -fstack-protector -Wall -Wunused-but-set-parameter -Wno-free-nonheap-object -fno-omit-frame-pointer -g0 -O2 '-D_FORTIFY_SOURCE=1' -DNDEBUG -ffunction-sections -fdata-sections '-std=c++0x' -DAUTOLOAD_DYNAMIC_KERNELS"
         export CPPFLAGS="${CPPFLAGS} -mcpu=power9 -mtune=power10"

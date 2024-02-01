@@ -26,7 +26,7 @@ build:
   string: {{ build_type }}{{ cudatoolkit | replace(".*", "") }}_py{{ python | replace(".", "") }}_pb{{ protobuf | replace(".*", "")}}_{{ PKG_BUILDNUM }} #[build_type == 'cuda']
   script_env:          #[build_type == "cuda" or ppc_arch == "p10"]
     - CUDA_HOME        #[build_type == "cuda"]
-    - GCC_11_HOME      #[ppc_arch == "p10"]
+    - GCC_HOME      #[ppc_arch == "p10"]
 
 
 requirements:
