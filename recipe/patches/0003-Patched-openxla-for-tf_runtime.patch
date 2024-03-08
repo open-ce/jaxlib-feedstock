@@ -1,41 +1,21 @@
-From 03aa78468acc523db8d3043af3b7ed121ed9a7c9 Mon Sep 17 00:00:00 2001
-From: Nishidha Panpaliya <npanpa23@in.ibm.com>
-Date: Tue, 18 Apr 2023 06:09:25 +0000
-Subject: [PATCH] Patched XLA for TF runtime
+From 3b25528411fea698300708e3d0f6772f5d934113 Mon Sep 17 00:00:00 2001
+From: Aman Surkar <Aman.Surkar@ibm.com>
+Date: Fri, 8 Mar 2024 16:51:10 +0000
+Subject: [PATCH] Patched-openxla-for-tf_runtime
 
 ---
- WORKSPACE                                     |   4 +-
  build/build.py                                |   1 +
- build/build_wheel.py                          |   1 +
- ...001-TF-runtime-patched-on-big-endian.patch | 130 ++++++++++++++++++
- 4 files changed, 135 insertions(+), 1 deletion(-)
+ jax/tools/build_utils.py                      |   1 +
+ ...001-TF-runtime-patched-on-big-endian.patch | 164 ++++++++++++++++++
+ third_party/xla/workspace.bzl                 |   2 +-
+ 4 files changed, 167 insertions(+), 1 deletion(-)
  create mode 100644 third_party/xla/0001-TF-runtime-patched-on-big-endian.patch
 
-diff --git a/WORKSPACE b/WORKSPACE
-index baf0f76e5..5cbae9e2c 100644
---- a/WORKSPACE
-+++ b/WORKSPACE
-@@ -12,6 +12,8 @@ http_archive(
-     urls = [
-         "https://github.com/openxla/xla/archive/79ca8d03c296ede04dc9a86ce9dde79ed909dda8.tar.gz",
-     ],
-+    patch_args = ["-p1"],
-+    patches = ["//third_party:xla/0001-TF-runtime-patched-on-big-endian.patch"],
- )
- 
- # For development, one often wants to make changes to the TF repository as well
-@@ -47,4 +49,4 @@ xla_workspace0()
- 
- 
- load("//third_party/flatbuffers:workspace.bzl", flatbuffers = "repo")
--flatbuffers()
-\ No newline at end of file
-+flatbuffers()
 diff --git a/build/build.py b/build/build.py
-index 85e3c5e17..a3bbf0303 100755
+index 41994c4b4..b8807f468 100755
 --- a/build/build.py
 +++ b/build/build.py
-@@ -469,6 +469,7 @@ def main():
+@@ -484,6 +484,7 @@ def main():
        "darwin_arm64": "arm64",
        "darwin_x86_64": "x86_64",
        "ppc": "ppc64le",
@@ -43,11 +23,11 @@ index 85e3c5e17..a3bbf0303 100755
        "aarch64": "aarch64",
    }
    # TODO(phawkins): support other bazel cpu overrides.
-diff --git a/build/build_wheel.py b/build/build_wheel.py
-index 421440321..8c26c7ee9 100644
---- a/build/build_wheel.py
-+++ b/build/build_wheel.py
-@@ -264,6 +264,7 @@ def build_wheel(sources_path, output_path, cpu):
+diff --git a/jax/tools/build_utils.py b/jax/tools/build_utils.py
+index 22aa87771..e3367b131 100644
+--- a/jax/tools/build_utils.py
++++ b/jax/tools/build_utils.py
+@@ -56,6 +56,7 @@ def platform_tag(cpu: str) -> str:
      ("Linux", "x86_64"): ("manylinux2014", "x86_64"),
      ("Linux", "aarch64"): ("manylinux2014", "aarch64"),
      ("Linux", "ppc64le"): ("manylinux2014", "ppc64le"),
@@ -57,31 +37,64 @@ index 421440321..8c26c7ee9 100644
      ("Windows", "AMD64"): ("win", "amd64"),
 diff --git a/third_party/xla/0001-TF-runtime-patched-on-big-endian.patch b/third_party/xla/0001-TF-runtime-patched-on-big-endian.patch
 new file mode 100644
-index 000000000..2461a2ff4
+index 000000000..251e48eef
 --- /dev/null
 +++ b/third_party/xla/0001-TF-runtime-patched-on-big-endian.patch
-@@ -0,0 +1,130 @@
-+From d3ffb36eaee7e1905a6a5d70e30d7d5269f8adc8 Mon Sep 17 00:00:00 2001
-+From: Nishidha Panpaliya <npanpa23@in.ibm.com>
-+Date: Tue, 18 Apr 2023 06:08:00 +0000
-+Subject: [PATCH] TF runtime patched on big endian
+@@ -0,0 +1,164 @@
++From d2afc1cb441feef86b3b52cc23b0bdf07a99739f Mon Sep 17 00:00:00 2001
++From: Aman Surkar <Aman.Surkar@ibm.com>
++Date: Fri, 8 Mar 2024 16:46:34 +0000
++Subject: [PATCH] TF-runtime-patched-on-big-endian
 +
 +---
++ 0001-Fix-openssl-for-s390x.patch              | 25 ++++++
 + ...ble-asserts-for-little-endian-checks.patch | 85 +++++++++++++++++++
-+ third_party/tf_runtime/workspace.bzl          |  2 +-
-+ third_party/tsl/workspace3.bzl                |  2 +-
-+ 3 files changed, 87 insertions(+), 2 deletions(-)
-+ create mode 100644 third_party/tf_runtime/0001-Disable-asserts-for-little-endian-checks.patch
++ .../tsl/third_party/tf_runtime/workspace.bzl  |  2 +-
++ workspace2.bzl                                |  3 +-
++ 4 files changed, 113 insertions(+), 2 deletions(-)
++ create mode 100644 0001-Fix-openssl-for-s390x.patch
++ create mode 100644 third_party/tsl/third_party/tf_runtime/0001-Disable-asserts-for-little-endian-checks.patch
 +
-+diff --git a/third_party/tf_runtime/0001-Disable-asserts-for-little-endian-checks.patch b/third_party/tf_runtime/0001-Disable-asserts-for-little-endian-checks.patch
++diff --git a/0001-Fix-openssl-for-s390x.patch b/0001-Fix-openssl-for-s390x.patch
 +new file mode 100644
-+index 000000000..07b042e74
++index 000000000..ff9dd69ed
 +--- /dev/null
-++++ b/third_party/tf_runtime/0001-Disable-asserts-for-little-endian-checks.patch
+++++ b/0001-Fix-openssl-for-s390x.patch
++@@ -0,0 +1,25 @@
+++From 2bfd08f5ca5e5fa7bbe5a137f85742a7ad2f563b Mon Sep 17 00:00:00 2001
+++From: Aman Surkar <Aman.Surkar@ibm.com>
+++Date: Fri, 8 Mar 2024 11:30:13 +0000
+++Subject: [PATCH] Fix openssl for s390x
+++
+++---
+++ src/include/openssl/base.h | 2 +-
+++ 1 file changed, 1 insertion(+), 1 deletion(-)
+++
+++diff --git a/src/include/openssl/base.h b/src/include/openssl/base.h
+++index 983eadc5d..34747261c 100644
+++--- a/src/include/openssl/base.h
++++++ b/src/include/openssl/base.h
+++@@ -123,7 +123,7 @@ extern "C" {
+++ // little-endian architectures. Functions will not produce the correct answer
+++ // on other systems. Run the crypto_test binary, notably
+++ // crypto/compiler_test.cc, before adding a new architecture.
+++-#error "Unknown target CPU"
++++#define OPENSSL_64_BIT
+++ #endif
+++ 
+++ #if defined(__APPLE__)
+++-- 
+++2.34.1
+++
++diff --git a/third_party/tsl/third_party/tf_runtime/0001-Disable-asserts-for-little-endian-checks.patch b/third_party/tsl/third_party/tf_runtime/0001-Disable-asserts-for-little-endian-checks.patch
++new file mode 100644
++index 000000000..d44719da7
++--- /dev/null
+++++ b/third_party/tsl/third_party/tf_runtime/0001-Disable-asserts-for-little-endian-checks.patch
 +@@ -0,0 +1,85 @@
-++From d3bb7c35e60e6cf619dd43435e4643fa059cc615 Mon Sep 17 00:00:00 2001
-++From: Nishidha Panpaliya <npanpa23@in.ibm.com>
-++Date: Fri, 14 Apr 2023 11:37:23 +0000
+++From 25800b790b8d61781bd63b37068b04b221640d88 Mon Sep 17 00:00:00 2001
+++From: Aman Surkar <Aman.Surkar@ibm.com>
+++Date: Tue, 5 Mar 2024 13:10:13 +0000
 ++Subject: [PATCH] Disable asserts for little endian checks
 ++
 ++---
@@ -164,10 +177,10 @@ index 000000000..2461a2ff4
 ++-- 
 ++2.34.1
 ++
-+diff --git a/third_party/tf_runtime/workspace.bzl b/third_party/tf_runtime/workspace.bzl
-+index f61b4868f..84b57d37f 100644
-+--- a/third_party/tf_runtime/workspace.bzl
-++++ b/third_party/tf_runtime/workspace.bzl
++diff --git a/third_party/tsl/third_party/tf_runtime/workspace.bzl b/third_party/tsl/third_party/tf_runtime/workspace.bzl
++index 10bd2ec86..c98698aed 100644
++--- a/third_party/tsl/third_party/tf_runtime/workspace.bzl
+++++ b/third_party/tsl/third_party/tf_runtime/workspace.bzl
 +@@ -16,5 +16,5 @@ def repo():
 +         urls = tf_mirror_urls("https://github.com/tensorflow/runtime/archive/{commit}.tar.gz".format(commit = TFRT_COMMIT)),
 +         # A patch file can be provided for atomic commits to both TF and TFRT.
@@ -175,22 +188,36 @@ index 000000000..2461a2ff4
 +-        patch_file = None,
 ++        patch_file = ["//third_party:tf_runtime/0001-Disable-asserts-for-little-endian-checks.patch"],
 +     )
-+diff --git a/third_party/tsl/workspace3.bzl b/third_party/tsl/workspace3.bzl
-+index 41cfed2b2..20dd80302 100644
-+--- a/third_party/tsl/workspace3.bzl
-++++ b/third_party/tsl/workspace3.bzl
-+@@ -15,7 +15,7 @@ def workspace():
-+         ],
++diff --git a/workspace2.bzl b/workspace2.bzl
++index cae6a0edb..3aabcf6c2 100644
++--- a/workspace2.bzl
+++++ b/workspace2.bzl
++@@ -52,7 +52,8 @@ def _tf_repositories():
++         sha256 = "9dc53f851107eaf87b391136d13b815df97ec8f76dadb487b58b2fc45e624d2c",
++         strip_prefix = "boringssl-c00d7ca810e93780bd0c8ee4eea28f4f2ea4bcdc",
++         system_build_file = "//third_party/systemlibs:boringssl.BUILD",
++-        urls = tf_mirror_urls("https://github.com/google/boringssl/archive/c00d7ca810e93780bd0c8ee4eea28f4f2ea4bcdc.tar.gz"),
+++        patch_file = ["//:0001-Fix-openssl-for-s390x.patch"],
+++        urls = tf_mirror_urls("https://github.com/google/boringssl/archive/b9232f9e27e5668bc0414879dcdedb2a59ea75f2.tar.gz"),
 +     )
 + 
-+-    tf_runtime()
-++    #tf_runtime()
-+ 
-+     # https://github.com/bazelbuild/bazel-skylib/releases
-+     http_archive(
++     tf_http_archive(
 +-- 
 +2.34.1
 +
+diff --git a/third_party/xla/workspace.bzl b/third_party/xla/workspace.bzl
+index a6f972c34..aea84c3d4 100644
+--- a/third_party/xla/workspace.bzl
++++ b/third_party/xla/workspace.bzl
+@@ -29,7 +29,7 @@ def repo():
+         sha256 = XLA_SHA256,
+         strip_prefix = "xla-{commit}".format(commit = XLA_COMMIT),
+         urls = tf_mirror_urls("https://github.com/openxla/xla/archive/{commit}.tar.gz".format(commit = XLA_COMMIT)),
+-        patch_file = ["//third_party/xla:log.patch"],
++        patch_file = ["//third_party/xla:log.patch","//third_party/xla:0001-TF-runtime-patched-on-big-endian.patch"],
+     )
+ 
+     # For development, one often wants to make changes to the TF repository as well
 -- 
 2.34.1
 
