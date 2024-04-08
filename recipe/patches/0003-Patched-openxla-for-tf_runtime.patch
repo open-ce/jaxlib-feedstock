@@ -1,14 +1,14 @@
-From 3b25528411fea698300708e3d0f6772f5d934113 Mon Sep 17 00:00:00 2001
-From: Aman Surkar <Aman.Surkar@ibm.com>
-Date: Fri, 8 Mar 2024 16:51:10 +0000
+From 87edb88681f56417a651bb9fb54a2bbd244b301a Mon Sep 17 00:00:00 2001
+From: Deepali Chourasia <deepch23@in.ibm.com>
+Date: Mon, 8 Apr 2024 05:53:23 +0000
 Subject: [PATCH] Patched-openxla-for-tf_runtime
 
 ---
  build/build.py                                |   1 +
  jax/tools/build_utils.py                      |   1 +
- ...001-TF-runtime-patched-on-big-endian.patch | 164 ++++++++++++++++++
+ ...001-TF-runtime-patched-on-big-endian.patch | 169 ++++++++++++++++++
  third_party/xla/workspace.bzl                 |   2 +-
- 4 files changed, 167 insertions(+), 1 deletion(-)
+ 4 files changed, 172 insertions(+), 1 deletion(-)
  create mode 100644 third_party/xla/0001-TF-runtime-patched-on-big-endian.patch
 
 diff --git a/build/build.py b/build/build.py
@@ -37,10 +37,10 @@ index 22aa87771..e3367b131 100644
      ("Windows", "AMD64"): ("win", "amd64"),
 diff --git a/third_party/xla/0001-TF-runtime-patched-on-big-endian.patch b/third_party/xla/0001-TF-runtime-patched-on-big-endian.patch
 new file mode 100644
-index 000000000..251e48eef
+index 000000000..2aa620d3e
 --- /dev/null
 +++ b/third_party/xla/0001-TF-runtime-patched-on-big-endian.patch
-@@ -0,0 +1,164 @@
+@@ -0,0 +1,169 @@
 +From d2afc1cb441feef86b3b52cc23b0bdf07a99739f Mon Sep 17 00:00:00 2001
 +From: Aman Surkar <Aman.Surkar@ibm.com>
 +Date: Fri, 8 Mar 2024 16:46:34 +0000
@@ -189,24 +189,29 @@ index 000000000..251e48eef
 ++        patch_file = ["//third_party:tf_runtime/0001-Disable-asserts-for-little-endian-checks.patch"],
 +     )
 +diff --git a/workspace2.bzl b/workspace2.bzl
-+index cae6a0edb..3aabcf6c2 100644
++index cae6a0edb..2f5fac4b6 100644
 +--- a/workspace2.bzl
 ++++ b/workspace2.bzl
-+@@ -52,7 +52,8 @@ def _tf_repositories():
-+         sha256 = "9dc53f851107eaf87b391136d13b815df97ec8f76dadb487b58b2fc45e624d2c",
-+         strip_prefix = "boringssl-c00d7ca810e93780bd0c8ee4eea28f4f2ea4bcdc",
++@@ -49,10 +49,11 @@ def _tf_repositories():
++
++     tf_http_archive(
++         name = "boringssl",
++-        sha256 = "9dc53f851107eaf87b391136d13b815df97ec8f76dadb487b58b2fc45e624d2c",
++-        strip_prefix = "boringssl-c00d7ca810e93780bd0c8ee4eea28f4f2ea4bcdc",
+++        sha256 = "534fa658bd845fd974b50b10f444d392dfd0d93768c4a51b61263fd37d851c40",
+++        strip_prefix = "boringssl-b9232f9e27e5668bc0414879dcdedb2a59ea75f2",
 +         system_build_file = "//third_party/systemlibs:boringssl.BUILD",
 +-        urls = tf_mirror_urls("https://github.com/google/boringssl/archive/c00d7ca810e93780bd0c8ee4eea28f4f2ea4bcdc.tar.gz"),
 ++        patch_file = ["//:0001-Fix-openssl-for-s390x.patch"],
 ++        urls = tf_mirror_urls("https://github.com/google/boringssl/archive/b9232f9e27e5668bc0414879dcdedb2a59ea75f2.tar.gz"),
 +     )
-+ 
++
 +     tf_http_archive(
-+-- 
++--
 +2.34.1
 +
 diff --git a/third_party/xla/workspace.bzl b/third_party/xla/workspace.bzl
-index a6f972c34..aea84c3d4 100644
+index a6f972c34..ce9daf6c8 100644
 --- a/third_party/xla/workspace.bzl
 +++ b/third_party/xla/workspace.bzl
 @@ -29,7 +29,7 @@ def repo():
