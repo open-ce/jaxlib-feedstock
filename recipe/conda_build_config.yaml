@@ -9,5 +9,3 @@ cuda_compiler_version:
   - "12.2"                   # [cudatoolkit == '12.2']
 cuda_compiler:
   - nvcc
-cudnn:
-  - 8.8.1
