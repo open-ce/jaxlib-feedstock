@@ -67,6 +67,16 @@ export CFLAGS="${CFLAGS} -DNDEBUG"
 export CXXFLAGS="${CXXFLAGS} -I${PREFIX}/include"
 source gen-bazel-toolchain
 
+#Block to fix glibc version mismatch error
+export LDFLAGS="${LDFLAGS} -L${PREFIX}/lib -Wl,-rpath,${PREFIX}/lib"
+ARCH=`uname -p`
+if [[ "${ARCH}" == "x86_64" ]]; then
+    export BAZEL_LINKLIBS=-l%:libstdc++.a
+    rm -f ${PREFIX}/lib/libstdc++.so*
+    rm -f ${BUILD_PREFIX}/lib/libstdc++.so*
+    bazel clean --expunge
+fi
+
 cat >> .bazelrc <<EOF
 build --crosstool_top=//bazel_toolchain:toolchain
 build --logging=6
